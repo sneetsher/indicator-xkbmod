@@ -177,7 +177,9 @@ int main (int argc, char **argv)
                                         "Simple XKB Modifier Indicator",
                                         "icon",
                                         APP_INDICATOR_CATEGORY_HARDWARE,
-                                        g_get_current_dir());
+                                        DATA_PATH);
+                                        //g_get_current_dir());
+
 
   uim = gtk_ui_manager_new ();
   gtk_ui_manager_insert_action_group (uim, action_group, 0);

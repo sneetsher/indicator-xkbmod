@@ -16,6 +16,6 @@ PKG_CHECK_MODULES([DEPS], [appindicator-0.1])
 
 AC_CHECK_HEADERS([string.h X11/XKBlib.h])
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile data/Makefile])
 
 AC_OUTPUT

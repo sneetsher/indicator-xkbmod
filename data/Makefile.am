@@ -9,13 +9,13 @@ CLEANFILES =
 NULL =
 
 private_icons = \
-	icon.png \
+	icons/icon.png \
 	$(NULL)
 
 install-icons:
 	for icon in $(private_icons); do \
 		mkdir -p $(DESTDIR)$(pkgdatadir)/icons/; \
-		$(INSTALL_DATA) $(srcdir)/icons/$$icon $(DESTDIR)$(pkgdatadir)/icons/; \
+		$(INSTALL_DATA) $(srcdir)/$$icon $(DESTDIR)$(pkgdatadir)/icons/; \
 	done
 
 install-data-local: install-icons

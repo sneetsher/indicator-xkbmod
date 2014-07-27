@@ -1,7 +1,7 @@
 /*
  * indicator-xkbmod.c
  *
- * Copyright 2014 Sneetsher <sneetsher@localhost>
+ * Copyright 2014 Abdellah Chelli <abdellahchelli@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,13 +29,12 @@
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
 
-//callback data structure
+//gtk loop callback data structure
 typedef struct _AppData {
   Display *_display;
   int *_deviceId;
   AppIndicator *indicator;
 } AppData;
-
 
 //menu ui
 static GtkActionEntry entries[] = {
@@ -55,12 +54,78 @@ static const gchar *ui_info =
 //callback function, get xkb state, update indicator label (icon have limitation)
 static gboolean update_xkb_state (gpointer data)
 {
-  //get xkb state
+  //current xkb state
   XkbStateRec xkbState;
+  //used to refresh icon skipping unneeded cycles
+  static XkbStateRec xkbState_prev;
+  static int counter = 0;
+  
   XkbGetState(((AppData*) data)->_display, *(((AppData*) data)->_deviceId), &xkbState);
 
+  if (xkbState.mods!=xkbState_prev.mods || xkbState.locked_mods!=xkbState_prev.locked_mods || counter==0)
+    xkbState_prev = xkbState;
+  else
+    return TRUE;
+
+  GError **error = NULL;
   //construct label
+
+  //symbols: shift U21E7, ctrl U22C0, alt U2325, altgr U2387, cmd U2318
+  //from font: DejaVu Sans, FreeSans
+  GString *label_template[] = {
+    g_string_new("⇧"), 
+    g_string_new("⇬"), 
+    g_string_new("⋀"), 
+    g_string_new("⌥"), 
+    g_string_new("①"), 
+    g_string_new("5"), 
+    g_string_new("⌘"), 
+    g_string_new("⎇")};
+
   GString *label = g_string_new("");
+  //construct icon
+  GString *svg_template[] = {
+    g_string_new("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n\
+<svg width='144' xmlns='http://www.w3.org/2000/svg' version='1.1' height='22'>\n\
+ <defs>\n\
+  <mask id='m0'>\n\
+   <rect y='2' x='0' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='9' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⇧</text>\n\
+  </mask>\n\
+  <mask id='m1'>\n\
+   <rect y='2' x='18' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='27' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⇬</text>\n\
+  </mask>\n\
+  <mask id='m2'>\n\
+   <rect y='2' x='36' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='45' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⋀</text>\n\
+  </mask>\n\
+  <mask id='m3'>\n\
+   <rect y='2' x='54' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='63' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⌥</text>\n\
+  </mask>\n\
+  <mask id='m4'>\n\
+   <rect y='2' x='72' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='81' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>①</text>\n\
+  </mask>\n\
+  <mask id='m5'>\n\
+   <rect y='2' x='90' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='99' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>5</text>\n\
+  </mask>\n\
+  <mask id='m6'>\n\
+   <rect y='2' x='108' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='117' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⌘</text>\n\
+  </mask>\n\
+  <mask id='m7'>\n\
+   <rect y='2' x='126' style='fill:#fff' height='18' width='18'/>\n\
+   <text y='14.5' x='135' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⎇</text>\n\
+  </mask>\n\
+ </defs>\n"),
+ g_string_new("<rect style='fill:%s' mask='url(#m%i)' rx='2' height='16' width='16' y='3' x='%i'/>\n"),
+ g_string_new("<rect style='fill:#f00' mask='url(#m%i)' rx='2' height='4' width='4' y='14' x='%i'/>\n"),
+ g_string_new("</svg>")};
+  GString *svg = g_string_new(svg_template[0]->str);
+  gsize *bytes_written;
 
   register int i;
   unsigned bit;
@@ -76,43 +141,36 @@ static gboolean update_xkb_state (gpointer data)
 
     //todo: change constant with xkb modifier constant (defined in the headers)
     // show effective modifier stat
-    switch (i)
-    {
-      case 7:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "⎇" : ""));
-        break;
-      case 6:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "⌘" : ""));
-        break;
-      case 5:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "5" : ""));
-        break;
-      case 4:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "①" : ""));
-        break;
-      case 3:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "⌥" : ""));
-        break;
-      case 2:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "⋀" : ""));
-        break;
-      case 1:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "⇬" : ""));
-        break;
-      case 0:
-        g_string_prepend (label,  ((xkbState.mods & bit) ? "⇧" : ""));
-        break;
-      default:
-        break;
-    };
 
-    // show if modifier is locked
-    g_string_prepend (label,  ((xkbState.locked_mods & bit) ? " ˳" : " "));
+    if (xkbState.mods & bit) {
+      g_string_prepend (label, label_template[i]->str);
+      g_string_append_printf (svg, svg_template[1]->str,"#dfdbd2", i, 18*i+1);
+    }
+    else {
+      g_string_append_printf (svg, svg_template[1]->str,"#2a2a28", i, 18*i+1);
+    }
+
+    if (xkbState.locked_mods & bit) {
+      g_string_prepend (label,  " ˳");
+      g_string_append_printf (svg, svg_template[2]->str, i, 18*i+2);
+    }
+    else {
+      g_string_prepend (label,  " ");
+    }
   }
 
   //g_string_prepend (label,  "");
   app_indicator_set_label (((AppData*) data)->indicator, label->str, NULL);
 
+  g_string_append (svg, svg_template[3]->str);
+  GIOChannel *svg_file = g_io_channel_new_file("/tmp/icon.svg", "w", error);
+  g_io_channel_write_chars (svg_file, svg->str, -1, bytes_written, error);
+  g_io_channel_shutdown (svg_file, TRUE, error);
+
+  counter++;
+  app_indicator_set_icon_theme_path (((AppData*) data)->indicator, (counter % 2)?"/tmp/":"/tmp/./");
+  app_indicator_set_icon (((AppData*) data)->indicator, "icon");
+  
   //g_free(label);
   return TRUE;
 }
@@ -177,7 +235,8 @@ int main (int argc, char **argv)
                                         "Simple XKB Modifier Indicator",
                                         "icon",
                                         APP_INDICATOR_CATEGORY_HARDWARE,
-                                        DATA_PATH);
+                                        g_get_tmp_dir());
+                                        //DATA_PATH);
                                         //g_get_current_dir());
 
 
@@ -195,16 +254,10 @@ int main (int argc, char **argv)
   app_indicator_set_menu (indicator, GTK_MENU (indicator_menu));
   app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
 
-  //app_indicator_set_label (indicator, " ⇧ ⋀ ⌥ ⎇  ⌘ ", NULL);
-  //symbols: shift U21E7 ctrl U22C0 alt/altgr U2325 U2387  cmd U2318
-  //from font: DejaVu Sans
-
   appdata._display = _display;
   appdata._deviceId = &_deviceId;
   appdata.indicator = indicator;
-  gtk_timeout_add (120, (GtkFunction) update_xkb_state, &appdata);
-  //nice for realtime tasks, to replace gtk_timeout
-  //gtk_idle_add ((GtkFunction) idle_func, &appdata);
+  gtk_timeout_add (50, (GtkFunction) update_xkb_state, &appdata);
 
   gtk_main ();
 

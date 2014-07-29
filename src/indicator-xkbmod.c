@@ -29,6 +29,15 @@
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
 
+
+//commandline options
+static gboolean show_label = FALSE;
+static GOptionEntry option_entries[] = {
+  { "use-label", 'l', 0, G_OPTION_ARG_NONE, &show_label, "Use indicator label instead of icon", NULL },
+  { NULL }
+};
+
+
 //gtk loop callback data structure
 typedef struct _AppData {
   Display *_display;
@@ -156,17 +165,20 @@ static gboolean update_xkb_state (gpointer data)
   }
 
   //g_string_prepend (label,  "");
-  //app_indicator_set_label (((AppData*) data)->indicator, label->str, NULL);
-
   g_string_append (svg, svg_template[3]->str);
-  GIOChannel *svg_file = g_io_channel_new_file(g_strdup_printf("%s/icon.svg", ((AppData*) data)->theme_path), "w", error);
-  g_io_channel_write_chars (svg_file, svg->str, -1, bytes_written, error);
-  g_io_channel_shutdown (svg_file, TRUE, error);
 
   counter++;
-  app_indicator_set_icon_theme_path (((AppData*) data)->indicator, (counter % 2)? ((AppData*) data)->theme_path : g_strdup_printf("%s/.", ((AppData*) data)->theme_path));
-  app_indicator_set_icon (((AppData*) data)->indicator, "icon");
-  
+
+  if (show_label)
+    app_indicator_set_label (((AppData*) data)->indicator, label->str, NULL);
+  else {
+    GIOChannel *svg_file = g_io_channel_new_file(g_strdup_printf("%s/icon.svg", ((AppData*) data)->theme_path), "w", error);
+    g_io_channel_write_chars (svg_file, svg->str, -1, bytes_written, error);
+    g_io_channel_shutdown (svg_file, TRUE, error);
+    app_indicator_set_icon_theme_path (((AppData*) data)->indicator, (counter % 2)? ((AppData*) data)->theme_path : g_strdup_printf("%s/.", ((AppData*) data)->theme_path));
+    app_indicator_set_icon (((AppData*) data)->indicator, "icon");
+  }
+
   //g_free(label);
   return TRUE;
 }
@@ -191,6 +203,16 @@ int main (int argc, char **argv)
   GtkUIManager *uim;
   GtkActionGroup *action_group;
   GError *error = NULL;
+  GOptionContext *option_context;
+
+  option_context = g_option_context_new ("");
+  g_option_context_add_main_entries (option_context, option_entries, NULL);
+  g_option_context_add_group (option_context, gtk_get_option_group (TRUE));
+  if (!g_option_context_parse (option_context, &argc, &argv, &error))
+    {
+      g_error ("Option parsing failed: %s", error->message);
+      return 5;
+    }
 
   gtk_init (&argc, &argv);
 
@@ -235,7 +257,9 @@ int main (int argc, char **argv)
                                         "icon",
                                         APP_INDICATOR_CATEGORY_HARDWARE,
                                         theme_path);
-                                        //DATA_PATH);
+
+  if (show_label)
+    app_indicator_set_icon_theme_path (indicator, DATA_PATH);
 
 
   uim = gtk_ui_manager_new ();

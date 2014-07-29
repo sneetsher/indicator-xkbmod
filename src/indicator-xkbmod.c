@@ -34,6 +34,7 @@ typedef struct _AppData {
   Display *_display;
   int *_deviceId;
   AppIndicator *indicator;
+  const gchar *theme_path;
 } AppData;
 
 //menu ui
@@ -56,7 +57,7 @@ static gboolean update_xkb_state (gpointer data)
 {
   //current xkb state
   XkbStateRec xkbState;
-  //used to refresh icon skipping unneeded cycles
+  //used to refresh icon, skipping unneeded cycles
   static XkbStateRec xkbState_prev;
   static int counter = 0;
   
@@ -130,24 +131,19 @@ static gboolean update_xkb_state (gpointer data)
   register int i;
   unsigned bit;
 
+  g_debug("xkbState - base %02X, latched %02X, locked %02X, effective %02X, compact %02X", xkbState.base_mods, xkbState.latched_mods, xkbState.locked_mods, xkbState.mods, xkbState.compat_state);
+
   //loop taken from xkbwatch source
   for (i = XkbNumModifiers - 1, bit = 0x80; i >= 0; i--, bit >>= 1)
   {
-    //printf("base%d %s  ", i, (xkbState.base_mods & bit) ? "on " : "off");
-    //printf("latched%d %s  ", i, (xkbState.latched_mods & bit) ? "on " : "off");
-    //printf("locked%d %s  ", i, (xkbState.locked_mods & bit) ? "on " : "off");
-    //printf("effective%d %s  ", i, (xkbState.mods & bit) ? "on " : "off");
-    //printf("compat%d %s\n", i, (xkbState.compat_state & bit) ? "on " : "off");
-
     //todo: change constant with xkb modifier constant (defined in the headers)
-    // show effective modifier stat
 
     if (xkbState.mods & bit) {
       g_string_prepend (label, label_template[i]->str);
       g_string_append_printf (svg, svg_template[1]->str,"#dfdbd2", i, 18*i+1);
     }
     else {
-      g_string_append_printf (svg, svg_template[1]->str,"#2a2a28", i, 18*i+1);
+      g_string_append_printf (svg, svg_template[1]->str,"#7E7D77", i, 18*i+1);
     }
 
     if (xkbState.locked_mods & bit) {
@@ -160,15 +156,15 @@ static gboolean update_xkb_state (gpointer data)
   }
 
   //g_string_prepend (label,  "");
-  app_indicator_set_label (((AppData*) data)->indicator, label->str, NULL);
+  //app_indicator_set_label (((AppData*) data)->indicator, label->str, NULL);
 
   g_string_append (svg, svg_template[3]->str);
-  GIOChannel *svg_file = g_io_channel_new_file("/tmp/icon.svg", "w", error);
+  GIOChannel *svg_file = g_io_channel_new_file(g_strdup_printf("%s/icon.svg", ((AppData*) data)->theme_path), "w", error);
   g_io_channel_write_chars (svg_file, svg->str, -1, bytes_written, error);
   g_io_channel_shutdown (svg_file, TRUE, error);
 
   counter++;
-  app_indicator_set_icon_theme_path (((AppData*) data)->indicator, (counter % 2)?"/tmp/":"/tmp/./");
+  app_indicator_set_icon_theme_path (((AppData*) data)->indicator, (counter % 2)? ((AppData*) data)->theme_path : g_strdup_printf("%s/.", ((AppData*) data)->theme_path));
   app_indicator_set_icon (((AppData*) data)->indicator, "icon");
   
   //g_free(label);
@@ -201,21 +197,21 @@ int main (int argc, char **argv)
 
   XkbIgnoreExtension(False);
 
-  g_printf("Xkb client lib ver: %d.%d\n" , major , minor );
+  g_message("Xkb client lib ver. %d.%d" , major , minor );
   _display = XkbOpenDisplay(displayName, &eventCode, &errorReturn,
                             &major, &minor, &reasonReturn);
-  g_printf("Xkb server lib ver: %d.%d\n" , major , minor );
+  g_message("Xkb server lib ver. %d.%d" , major , minor );
 
   if (reasonReturn != XkbOD_Success)
   {
-    g_printf("Unable to open display!\n");
+    g_error("Unable to open display!");
     return 1;
   }
 
   XkbDescRec* kbdDescPtr = XkbAllocKeyboard();
   if (kbdDescPtr == NULL)
   {
-    g_printf ("Failed to get keyboard description.\n");
+    g_error("Failed to get keyboard description.");
     return 2;
   }
   kbdDescPtr->dpy = _display;
@@ -231,20 +227,22 @@ int main (int argc, char **argv)
   action_group = gtk_action_group_new ("AppActions");
   gtk_action_group_add_actions (action_group, entries, n_entries, NULL);
 
+
+  const gchar *theme_path = g_get_tmp_dir();
+
   indicator = app_indicator_new_with_path (
-                                        "Simple XKB Modifier Indicator",
+                                        "Simple XKB Modifiers Indicator",
                                         "icon",
                                         APP_INDICATOR_CATEGORY_HARDWARE,
-                                        g_get_tmp_dir());
+                                        theme_path);
                                         //DATA_PATH);
-                                        //g_get_current_dir());
 
 
   uim = gtk_ui_manager_new ();
   gtk_ui_manager_insert_action_group (uim, action_group, 0);
   if (!gtk_ui_manager_add_ui_from_string (uim, ui_info, -1, &error))
   {
-    g_printf ("Failed to build menus: %s\n", error->message);
+    g_error ("Failed to build menus: %s", error->message);
     g_error_free (error);
     error = NULL;
     return 3;
@@ -257,6 +255,7 @@ int main (int argc, char **argv)
   appdata._display = _display;
   appdata._deviceId = &_deviceId;
   appdata.indicator = indicator;
+  appdata.theme_path = theme_path;
   gtk_timeout_add (50, (GtkFunction) update_xkb_state, &appdata);
 
   gtk_main ();

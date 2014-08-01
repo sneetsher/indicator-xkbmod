@@ -48,6 +48,7 @@ typedef struct _AppData {
 
 //menu ui
 static GtkActionEntry entries[] = {
+  //todo: add about, toggle lable
   { "Quit",     "application-exit", "_Quit", "<control>Q",
     "Exit the application", G_CALLBACK (gtk_main_quit) },
 };
@@ -95,7 +96,8 @@ static gboolean update_xkb_state (gpointer data)
   GString *label = g_string_new("");
   //construct icon
   GString *svg_template[] = {
-    g_string_new("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n\
+    g_string_new("\
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n\
 <svg width='144' xmlns='http://www.w3.org/2000/svg' version='1.1' height='22'>\n\
  <defs>\n\
   <mask id='m0'>\n\
@@ -131,9 +133,9 @@ static gboolean update_xkb_state (gpointer data)
    <text y='14.5' x='135' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⎇</text>\n\
   </mask>\n\
  </defs>\n"),
- g_string_new("<rect style='fill:%s' mask='url(#m%i)' rx='2' height='16' width='16' y='3' x='%i'/>\n"),
- g_string_new("<rect style='fill:#f00' mask='url(#m%i)' rx='2' height='4' width='4' y='14' x='%i'/>\n"),
- g_string_new("</svg>")};
+    g_string_new("<rect style='fill:%s' mask='url(#m%i)' rx='2' height='16' width='16' y='3' x='%i'/>\n"),
+    g_string_new("<rect style='fill:#f00' mask='url(#m%i)' rx='2' height='4' width='4' y='14' x='%i'/>\n"),
+    g_string_new("</svg>")};
   GString *svg = g_string_new(svg_template[0]->str);
   gsize *bytes_written;
 
@@ -206,11 +208,13 @@ int main (int argc, char **argv)
   GOptionContext *option_context;
 
   option_context = g_option_context_new ("");
+  g_option_context_set_summary (option_context, "Simple XKB Modifiers Indicator");
+  g_option_context_set_help_enabled (option_context, TRUE);
   g_option_context_add_main_entries (option_context, option_entries, NULL);
   g_option_context_add_group (option_context, gtk_get_option_group (TRUE));
   if (!g_option_context_parse (option_context, &argc, &argv, &error))
     {
-      g_error ("Option parsing failed: %s", error->message);
+      g_message ("Option parsing failed: %s\n\n%s", error->message, g_option_context_get_help(option_context, FALSE, NULL));
       return 5;
     }
 

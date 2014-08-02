@@ -29,6 +29,8 @@
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
 
+#include "../config.h"
+
 
 //commandline options
 static gboolean show_label = FALSE;
@@ -47,8 +49,11 @@ typedef struct _AppData {
 } AppData;
 
 //menu ui
+void show_about ();
 static GtkActionEntry entries[] = {
   //todo: add about, toggle lable
+  { "About",     "application-about", "_About", NULL,
+    "Show about window", G_CALLBACK (show_about) },
   { "Quit",     "application-exit", "_Quit", "<control>Q",
     "Exit the application", G_CALLBACK (gtk_main_quit) },
 };
@@ -58,6 +63,7 @@ static guint n_entries = G_N_ELEMENTS (entries);
 static const gchar *ui_info =
 "<ui>"
 "  <popup name='IndicatorPopup'>"
+"    <menuitem action='About' />"
 "    <menuitem action='Quit' />"
 "  </popup>"
 "</ui>";
@@ -185,6 +191,18 @@ static gboolean update_xkb_state (gpointer data)
   return TRUE;
 }
 
+void show_about (){
+  gtk_show_about_dialog (NULL,
+                       "title" , g_strdup_printf("About %s", PACKAGE_NAME),
+                       "program-name", PACKAGE_NAME,
+                       "version", PACKAGE_VERSION,
+                       "copyright", g_strdup_printf("Copyright %s %s", "2014", "Abdellah Chelli"),
+                       "comments", "Simple XKB Modifiers Indicator",
+                       "license", "GPL 3.0",
+                       "website", "https://github.com/sneetsher/indicator-xkbmod/",
+                       NULL);
+}
+
 
 int main (int argc, char **argv)
 {
@@ -219,7 +237,6 @@ int main (int argc, char **argv)
     }
 
   gtk_init (&argc, &argv);
-
 
   XkbIgnoreExtension(False);
 

@@ -104,43 +104,18 @@ static gboolean update_xkb_state (gpointer data)
   GString *svg_template[] = {
     g_string_new("\
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>\n\
-<svg width='144' xmlns='http://www.w3.org/2000/svg' version='1.1' height='22'>\n\
- <defs>\n\
-  <mask id='m0'>\n\
-   <rect y='2' x='0' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='9' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⇧</text>\n\
-  </mask>\n\
-  <mask id='m1'>\n\
-   <rect y='2' x='18' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='27' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⇬</text>\n\
-  </mask>\n\
-  <mask id='m2'>\n\
-   <rect y='2' x='36' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='45' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⋀</text>\n\
-  </mask>\n\
-  <mask id='m3'>\n\
-   <rect y='2' x='54' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='63' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⌥</text>\n\
-  </mask>\n\
-  <mask id='m4'>\n\
-   <rect y='2' x='72' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='81' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>①</text>\n\
-  </mask>\n\
-  <mask id='m5'>\n\
-   <rect y='2' x='90' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='99' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>5</text>\n\
-  </mask>\n\
-  <mask id='m6'>\n\
-   <rect y='2' x='108' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='117' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⌘</text>\n\
-  </mask>\n\
-  <mask id='m7'>\n\
-   <rect y='2' x='126' style='fill:#fff' height='18' width='18'/>\n\
-   <text y='14.5' x='135' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>⎇</text>\n\
-  </mask>\n\
- </defs>\n"),
-    g_string_new("<rect style='fill:%s' mask='url(#m%i)' rx='2' height='16' width='16' y='3' x='%i'/>\n"),
-    g_string_new("<rect style='fill:#f00' mask='url(#m%i)' rx='2' height='4' width='4' y='14' x='%i'/>\n"),
+<svg width='144' xmlns='http://www.w3.org/2000/svg' version='1.1' height='22'>\n"),
+    g_string_new("\
+    <svg>\n\
+      <defs>\n\
+       <mask id='m%i'>\n\
+        <rect y='2' x='%i' style='fill:#fff' height='18' width='18'/>\n\
+        <text y='14.5' x='%i' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>%s</text>\n\
+       </mask>\n\
+      </defs>\n\
+      <rect style='fill:%s' mask='url(#m%i)' rx='2' height='16' width='16' y='3' x='%i'/>\n\
+      <rect style='fill:#f00' mask='url(#m%i)' rx='2' height='4' width='4' y='14' x='%i'/>\n\
+    </svg>\n"),
     g_string_new("</svg>")};
   GString *svg = g_string_new(svg_template[0]->str);
   gsize *bytes_written;
@@ -155,25 +130,15 @@ static gboolean update_xkb_state (gpointer data)
   {
     //todo: change constant with xkb modifier constant (defined in the headers)
 
-    if (xkbState.mods & bit) {
-      g_string_prepend (label, label_template[i]->str);
-      g_string_append_printf (svg, svg_template[1]->str,"#dfdbd2", i, 18*i+1);
-    }
-    else {
-      g_string_append_printf (svg, svg_template[1]->str,"#7E7D77", i, 18*i+1);
-    }
+    g_string_prepend (label, (xkbState.mods & bit)?label_template[i]->str:"");
+    g_string_prepend (label,  (xkbState.locked_mods & bit)?" ˳":" ");
 
-    if (xkbState.locked_mods & bit) {
-      g_string_prepend (label,  " ˳");
-      g_string_append_printf (svg, svg_template[2]->str, i, 18*i+2);
-    }
-    else {
-      g_string_prepend (label,  " ");
-    }
+    g_string_append_printf (svg, svg_template[1]->str, i, 18*i, 18*i+9, label_template[i]->str, (xkbState.mods & bit)?"#dfdbd2":"#7E7D77", i, 18*i+1, i, (xkbState.locked_mods & bit)?18*i+2:-5);
+
   }
 
   //g_string_prepend (label,  "");
-  g_string_append (svg, svg_template[3]->str);
+  g_string_append (svg, svg_template[2]->str);
 
   counter++;
 

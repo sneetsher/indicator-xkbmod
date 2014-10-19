@@ -7,6 +7,10 @@ Unity lacks such accessibility tools which most likely needed when sticky is act
 See [How to add a keyboard modifier state applet to Unity panel?](
 https://askubuntu.com/questions/402315/how-to-add-a-keyboard-modifier-state-applet-to-unity-panel/).
 
+![Demo: icon mode in Unity](/screenshots/demo_icon_unity.png)
+
+![Demo: label mode in Unity](/screenshots/demo_label_unity.png)
+
 ## Related Bugs Report
 ---
 

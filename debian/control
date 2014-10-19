@@ -2,10 +2,10 @@ Source: indicator-xkbmod
 Section: gnome
 Priority: optional
 Maintainer: Abdellah Chelli <abdellahchelli@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), ubuntu-dev-tools, automake, autotools-dev, g++, libx11-dev, libgtk2.0-dev, libappindicator-dev
+Build-Depends: debhelper (>= 8.0.0), automake, autotools-dev, libtool, libx11-dev, libgtk2.0-dev, libappindicator-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/sneetsher/indicator-xkbmod
-Vcs-Git: git@github.com:sneetsher/indicator-xkbmod.git
+Vcs-Git: git://github.com/sneetsher/indicator-xkbmod.git
 Vcs-Browser: https://github.com/sneetsher/indicator-xkbmod
 
 Package: indicator-xkbmod
@@ -15,5 +15,5 @@ Description: Simple Ubuntu keyboard modifiers indicator
  Keyboard modifiers state indicator for Ubuntu Unity desktop.
  As current state, it's just a prototype.
  .
- Unity lacks such accessibility tools whick most likely needed when 
+ Unity lacks such accessibility tools which most likely needed when 
  sticky is activated. 

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=XKB mod Indicator
+Comment=Shows keyboard modifiers state
+Keywords=xkb,modifiers,keyboard,stiky,keys
+Exec=indicator-xkbmod
+Icon=indicator-xkbmod
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=GTK;Utility;

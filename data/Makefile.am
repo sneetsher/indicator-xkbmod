@@ -19,9 +19,9 @@ install-icons:
 	done
 
 install-desktop:
-	mkdir -p $(datarootdir)/icons/;
-	mkdir -p $(datarootdir)/applications/;
-	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.png $(datarootdir)/icons/; \
-	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.desktop $(datarootdir)/applications/;
+	mkdir -p $(DESTDIR)$(datarootdir)/icons/;
+	mkdir -p $(DESTDIR)$(datarootdir)/applications/;
+	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.png $(DESTDIR)$(datarootdir)/icons/; \
+	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.desktop $(DESTDIR)$(datarootdir)/applications/;
 
 install-data-local: install-icons install-desktop

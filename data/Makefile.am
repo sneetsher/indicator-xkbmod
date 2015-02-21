@@ -24,4 +24,8 @@ install-desktop:
 	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.png $(DESTDIR)$(datarootdir)/icons/; \
 	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.desktop $(DESTDIR)$(datarootdir)/applications/;
 
-install-data-local: install-icons install-desktop
+install-man:
+	mkdir -p $(DESTDIR)$(datarootdir)/man/man1/
+	$(INSTALL_DATA) $(srcdir)/man/indicator-xkbmod.1 $(DESTDIR)$(datarootdir)/man/man1/;
+
+install-data-local: install-icons install-desktop install-man

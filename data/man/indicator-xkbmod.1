@@ -5,6 +5,8 @@ indicator-xkbmod \- simple Ubuntu keyboard modifiers indicator
 .B indicator-xkbmod
 [\fB\-l\fR]
 [\fB\-\-use\-label\fR]
+[\fB\-f\fR \fIBITS\fR]
+[\fB\-\-filter\fR \fIBITS\fR]
 .SH DESCRIPTION
 .B indicator-xkbmod
 simple Ubuntu keyboard modifiers indicator.
@@ -12,3 +14,6 @@ simple Ubuntu keyboard modifiers indicator.
 .TP
 .BR \-l ", " \-\-use-label 
 Use indicator label instead of icon to show the state.
+.TP
+.BR \-f ", " \-\-filter =\fIBITS\fR
+Show state only for specific modifiers (bitwise).

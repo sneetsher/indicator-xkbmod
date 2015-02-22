@@ -34,8 +34,11 @@
 
 //commandline options
 static gboolean show_label = FALSE;
+static gint show_filter = 255;
+static gint icon_count = 8;
 static GOptionEntry option_entries[] = {
   { "use-label", 'l', 0, G_OPTION_ARG_NONE, &show_label, "Use indicator label instead of icon", NULL },
+  { "filter", 'f', 255, G_OPTION_ARG_INT, &show_filter, "Which modifiers to show", NULL },
   { NULL }
 };
 
@@ -104,7 +107,7 @@ static gboolean update_xkb_state (gpointer data)
   GString *svg_template[] = {
     g_string_new("\
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>\n\
-<svg width='144' xmlns='http://www.w3.org/2000/svg' version='1.1' height='22'>\n"),
+<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='22' width='%i'>\n"),
     g_string_new("\
     <svg>\n\
       <defs>\n\
@@ -117,24 +120,28 @@ static gboolean update_xkb_state (gpointer data)
       <rect style='fill:#f00' mask='url(#m%i)' rx='2' height='4' width='4' y='14' x='%i'/>\n\
     </svg>\n"),
     g_string_new("</svg>")};
-  GString *svg = g_string_new(svg_template[0]->str);
+  GString *svg = g_string_new("");
+  g_string_append_printf (svg, svg_template[0]->str, icon_count*18);
   gsize *bytes_written;
 
-  register int i;
+  register int i,j;
   unsigned bit;
 
   g_debug("xkbState - base %02X, latched %02X, locked %02X, effective %02X, compact %02X", xkbState.base_mods, xkbState.latched_mods, xkbState.locked_mods, xkbState.mods, xkbState.compat_state);
 
   //loop taken from xkbwatch source
+  j=icon_count-1;
   for (i = XkbNumModifiers - 1, bit = 0x80; i >= 0; i--, bit >>= 1)
   {
+    if (!(show_filter & bit)) continue;
     //todo: change constant with xkb modifier constant (defined in the headers)
 
     g_string_prepend (label, (xkbState.mods & bit)?label_template[i]->str:"");
     g_string_prepend (label,  (xkbState.locked_mods & bit)?" ˳":" ");
 
-    g_string_append_printf (svg, svg_template[1]->str, i, 18*i, 18*i+9, label_template[i]->str, (xkbState.mods & bit)?"#dfdbd2":"#7E7D77", i, 18*i+1, i, (xkbState.locked_mods & bit)?18*i+2:-5);
+    g_string_append_printf (svg, svg_template[1]->str, i, 18*j, 18*j+9, label_template[i]->str, (xkbState.mods & bit)?"#dfdbd2":"#7E7D77", i, 18*j+1, i, (xkbState.locked_mods & bit)?18*j+2:-5);
 
+    j--;
   }
 
   //g_string_prepend (label,  "");
@@ -200,6 +207,15 @@ int main (int argc, char **argv)
       g_message ("Option parsing failed: %s\n\n%s", error->message, g_option_context_get_help(option_context, FALSE, NULL));
       return 5;
     }
+
+
+  icon_count = 0;
+  unsigned char c = (unsigned char) show_filter;
+  while ( c!=0 && icon_count<8 ) {
+    icon_count += c%2;
+    c>>=1;
+  }
+
 
   gtk_init (&argc, &argv);
 

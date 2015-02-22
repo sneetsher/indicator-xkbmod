@@ -32,3 +32,19 @@ https://code.launchpad.net/~sneetsher/+recipe/indicator-xkbmod-daily
 
     debuild -us -uc
     sudo dpkg -i indicator-xkbmod*.deb
+
+### Running
+
+- default mode:
+
+        indicator-xkbmod
+
+- label mode:
+
+        indicator-xkbmod -l
+
+- filter needed modifiers (10110011 binary = 205 decimal)
+
+        indicator-xkbmod -f 205
+
+    shows only shift,control,alt,super,altgr

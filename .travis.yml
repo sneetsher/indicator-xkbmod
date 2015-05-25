@@ -3,4 +3,4 @@ compiler: gcc
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y debhelper automake autoconf autotools-dev libtool libx11-dev libgtk2.0-dev libappindicator-dev
-install: autoreconf -vif; ./configure; make; sudo make install
+install: autoreconf -vif

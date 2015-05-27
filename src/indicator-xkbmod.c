@@ -79,7 +79,7 @@ static gboolean update_xkb_state (gpointer data)
   //used to refresh icon, skipping unneeded cycles
   static XkbStateRec xkbState_prev;
   static int counter = 0;
-  
+
   XkbGetState(((AppData*) data)->_display, *(((AppData*) data)->_deviceId), &xkbState);
 
   if (xkbState.mods!=xkbState_prev.mods || xkbState.locked_mods!=xkbState_prev.locked_mods || counter==0)
@@ -93,13 +93,13 @@ static gboolean update_xkb_state (gpointer data)
   //symbols: shift U21E7, ctrl U22C0, alt U2325, altgr U2387, cmd U2318
   //from font: DejaVu Sans, FreeSans
   GString *label_template[] = {
-    g_string_new("⇧"), 
-    g_string_new("⇬"), 
-    g_string_new("⋀"), 
-    g_string_new("⌥"), 
-    g_string_new("①"), 
-    g_string_new("5"), 
-    g_string_new("⌘"), 
+    g_string_new("⇧"),
+    g_string_new("⇬"),
+    g_string_new("⋀"),
+    g_string_new("⌥"),
+    g_string_new("①"),
+    g_string_new("◆"),
+    g_string_new("⌘"),
     g_string_new("⎇")};
 
   GString *label = g_string_new("");
@@ -109,16 +109,41 @@ static gboolean update_xkb_state (gpointer data)
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>\n\
 <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='22' width='%i'>\n"),
     g_string_new("\
+    <g transform='translate(%i,0)'>\
     <svg>\n\
       <defs>\n\
-       <mask id='m%i'>\n\
-        <rect y='2' x='%i' style='fill:#fff' height='18' width='18'/>\n\
-        <text y='14.5' x='%i' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>%s</text>\n\
+       <mask id='m'>\n\
+        <rect y='2' x='0' style='fill:#fff' height='18' width='18'/>\n\
        </mask>\n\
       </defs>\n\
-      <rect style='fill:%s' mask='url(#m%i)' rx='2' height='16' width='16' y='3' x='%i'/>\n\
-      <rect style='fill:#f00' mask='url(#m%i)' rx='2' height='4' width='4' y='14' x='%i'/>\n\
-    </svg>\n"),
+      <text y='14.5' x='9' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>%s</text>\n\
+    </svg>\
+    </g>\n"),
+    g_string_new("\
+    <g transform='translate(%i,0)'>\
+    <svg>\n\
+      <defs>\n\
+       <mask id='m'>\n\
+        <rect y='2' x='0' style='fill:#fff' height='18' width='18'/>\n\
+        <text y='14.5' x='9' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>%s</text>\n\
+       </mask>\n\
+      </defs>\n\
+      <rect style='fill:#aaf' mask='url(#m)' rx='2' height='16' width='16' y='3' x='1'/>\n\
+    </svg>\
+    </g>\n"),
+    g_string_new("\
+    <g transform='translate(%i,0)'>\
+    <svg>\n\
+      <defs>\n\
+       <mask id='m'>\n\
+        <rect y='2' x='0' style='fill:#fff' height='18' width='18'/>\n\
+        <rect style='fill:black' rx='2' height='4' width='4' y='14' x='2'/>\n\
+        <text y='14.5' x='9' style='text-anchor:middle;font-size:16;font-family:FreeMono;font-weight:500;fill:black'>%s</text>\n\
+       </mask>\n\
+      </defs>\n\
+      <rect style='fill:#f99' mask='url(#m)' rx='2' height='16' width='16' y='3' x='1'/>\n\
+    </svg>\
+    </g>\n"),
     g_string_new("</svg>")};
   GString *svg = g_string_new("");
   g_string_append_printf (svg, svg_template[0]->str, icon_count*18);
@@ -139,13 +164,13 @@ static gboolean update_xkb_state (gpointer data)
     g_string_prepend (label, (xkbState.mods & bit)?label_template[i]->str:"");
     g_string_prepend (label,  (xkbState.locked_mods & bit)?" ˳":" ");
 
-    g_string_append_printf (svg, svg_template[1]->str, i, 18*j, 18*j+9, label_template[i]->str, (xkbState.mods & bit)?"#dfdbd2":"#7E7D77", i, 18*j+1, i, (xkbState.locked_mods & bit)?18*j+2:-5);
+    g_string_append_printf (svg, (xkbState.mods & bit)?((xkbState.locked_mods & bit)?svg_template[3]->str:svg_template[2]->str):svg_template[1]->str, 18*j, label_template[i]->str);
 
     j--;
   }
 
   //g_string_prepend (label,  "");
-  g_string_append (svg, svg_template[2]->str);
+  g_string_append (svg, svg_template[4]->str);
 
   counter++;
 
@@ -168,7 +193,7 @@ void show_about (){
                        "title" , g_strdup_printf("About %s", PACKAGE_NAME),
                        "program-name", PACKAGE_NAME,
                        "version", PACKAGE_VERSION,
-                       "copyright", g_strdup_printf("Copyright %s %s", "2014", "Abdellah Chelli"),
+                       "copyright", g_strdup_printf("Copyright %s %s", "2014-2015", "Abdellah Chelli"),
                        "comments", "Simple XKB Modifiers Indicator",
                        "license", "GPL 3.0",
                        "website", "https://github.com/sneetsher/indicator-xkbmod/",
@@ -221,10 +246,10 @@ int main (int argc, char **argv)
 
   XkbIgnoreExtension(False);
 
-  g_message("Xkb client lib ver. %d.%d" , major , minor );
+  //g_message("Xkb client lib ver. %d.%d" , major , minor );
   _display = XkbOpenDisplay(displayName, &eventCode, &errorReturn,
                             &major, &minor, &reasonReturn);
-  g_message("Xkb server lib ver. %d.%d" , major , minor );
+  //g_message("Xkb server lib ver. %d.%d" , major , minor );
 
   if (reasonReturn != XkbOD_Success)
   {

@@ -1,4 +1,4 @@
-# indicator-xkbmod (Unity XKB Modifier Indicator)
+## indicator-xkbmod (Unity XKB Modifier Indicator)
 
 Keyboard modifiers state indicator for Ubuntu Unity desktop. As current state, it's just a prototype.
 
@@ -19,22 +19,22 @@ https://bugs.launchpad.net/ubuntu/+bug/1306584)
 
 ## Install
 
-### From daily build PPA
+- ### From daily build PPA
 
  https://code.launchpad.net/~sneetsher/+recipe/indicator-xkbmod-daily
 
-### From source
+- ### From source
 
-    autoreconf -vif
-    ./configure
-    make
-    sudo make install
+        autoreconf -vif
+        ./configure
+        make
+        sudo make install
 
-### From locally built Debian package
+- ### From locally built Debian package
  (much cleanner then make install)
 
-    debuild -us -uc
-    sudo dpkg -i ../indicator-xkbmod*.deb
+        debuild -us -uc
+        sudo dpkg -i ../indicator-xkbmod*.deb
 
 ## Running Options
 
@@ -54,6 +54,6 @@ https://bugs.launchpad.net/ubuntu/+bug/1306584)
 
 ## Gnome-Shell/Gnome3 Support
 
- Currently, it can be run in label mode (`-l`) using [gnome-shell-extension-appindicator](https://github.com/rgcjonas/gnome-shell-extension-appindicator) which integrates Ubuntu AppIndicators and KStatusNotifierItems into Gnome Shell.
+Currently, it can be run in label mode (`-l`) using [gnome-shell-extension-appindicator](https://github.com/rgcjonas/gnome-shell-extension-appindicator) which integrates Ubuntu AppIndicators and KStatusNotifierItems into Gnome Shell.
 
- The extension could be install easily from https://extensions.gnome.org/extension/615/appindicator-support/ .
+The extension could be installed easily from https://extensions.gnome.org/extension/615/appindicator-support/ .

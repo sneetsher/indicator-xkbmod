@@ -1,4 +1,4 @@
-# indicator-xkbmod
+# indicator-xkbmod (Unity XKB Modifier Indicator)
 
 Keyboard modifiers state indicator for Ubuntu Unity desktop. As current state, it's just a prototype.
 
@@ -10,41 +10,50 @@ https://askubuntu.com/questions/402315/how-to-add-a-keyboard-modifier-state-appl
 
 ![Demo: label mode in Unity](/screenshots/demo_label_unity.png)
 
-### Related Bugs Report
+## Related Bugs Report
 
 - [lp#773078 Should display the StickyKeys status in some way (a11y)](
 https://bugs.launchpad.net/unity/+bug/773078)
 - [lp#1306584 No keyboard state applet in Unity](
 https://bugs.launchpad.net/ubuntu/+bug/1306584)
 
-### Daily build PPA
+## Install
 
-https://code.launchpad.net/~sneetsher/+recipe/indicator-xkbmod-daily
+### From daily build PPA
 
-### Build from source
+ https://code.launchpad.net/~sneetsher/+recipe/indicator-xkbmod-daily
+
+### From source
 
     autoreconf -vif
     ./configure
     make
     sudo make install
 
-### Build Debian package
+### From locally built Debian package
+ (much cleanner then make install)
 
     debuild -us -uc
-    sudo dpkg -i indicator-xkbmod*.deb
+    sudo dpkg -i ../indicator-xkbmod*.deb
 
-### Running
+## Running Options
 
-- default mode:
+- Default mode:
 
         indicator-xkbmod
 
-- label mode:
+- Label mode:
 
         indicator-xkbmod -l
 
-- filter needed modifiers (10110011 binary = 205 decimal)
+- Filter needed modifiers (10110011 binary = 205 decimal)
 
         indicator-xkbmod -f 205
 
     shows only shift,control,alt,super,altgr
+
+## Gnome-Shell/Gnome3 Support
+
+ Currently, it can be run in label mode (`-l`) using [gnome-shell-extension-appindicator](https://github.com/rgcjonas/gnome-shell-extension-appindicator) which integrates Ubuntu AppIndicators and KStatusNotifierItems into Gnome Shell.
+
+ The extension could be install easily from https://extensions.gnome.org/extension/615/appindicator-support/ .

@@ -22,7 +22,7 @@ install-desktop:
 	mkdir -p $(DESTDIR)$(datarootdir)/icons/;
 	mkdir -p $(DESTDIR)$(datarootdir)/applications/;
 	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.png $(DESTDIR)$(datarootdir)/icons/; \
-	$(INSTALL_DATA) $(srcdir)/indicator-xkbmod.desktop $(DESTDIR)$(datarootdir)/applications/;
+	$(INSTALL_DATA) $(srcdir)/*indicator-xkbmod.desktop $(DESTDIR)$(datarootdir)/applications/;
 
 install-man:
 	mkdir -p $(DESTDIR)$(datarootdir)/man/man1/

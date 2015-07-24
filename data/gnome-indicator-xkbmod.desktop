@@ -1,11 +1,11 @@
 [Desktop Entry]
-Name=XKB mod Indicator
+Name=Gnome XKB Mod Indicator
 Comment=Shows keyboard modifiers state
 Keywords=xkb,modifiers,keyboard,stiky,keys
-Exec=indicator-xkbmod
+Exec=indicator-xkbmod -l
 Icon=indicator-xkbmod
 Terminal=false
 Type=Application
 StartupNotify=false
-OnlyShowIn=Unity;
+OnlyShowIn=GNOME;
 Categories=GTK;Utility;

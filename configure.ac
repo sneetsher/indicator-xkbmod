@@ -1,4 +1,4 @@
-AC_INIT([indicator-xkbmod], [0.1], [abdellahchelli@gmail.com])
+AC_INIT([indicator-xkbmod], [0.3], [abdellahchelli@gmail.com])
 
 AC_CONFIG_SRCDIR([src/indicator-xkbmod.c])
 AC_CONFIG_HEADERS([config.h])

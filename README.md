@@ -6,7 +6,9 @@ Unity lacks such accessibility tools which most likely needed when sticky keys i
 See [How to add a keyboard modifier state applet to Unity panel?](
 https://askubuntu.com/questions/402315/how-to-add-a-keyboard-modifier-state-applet-to-unity-panel/).
 
-![Demo: icon mode in Unity](/screenshots/demo_icon_unity.png)
+![Demo: icon mode in Unity](/screenshots/demo_v0.3_icon_unity.png) ![Demo: icon mode under HUD in Unity](/screenshots/demo_v0.3_icon_unity_under-hud.png)
+
+![Demo: icon mode in Unity (Old release)](/screenshots/demo_icon_unity.png)
 
 ![Demo: label mode in Unity](/screenshots/demo_label_unity.png)
 
@@ -38,7 +40,7 @@ https://bugs.launchpad.net/ubuntu/+bug/1306584)
 
 ## Running Options
 
-- Default mode:
+- Icon mode (Default):
 
         indicator-xkbmod
 
@@ -46,7 +48,7 @@ https://bugs.launchpad.net/ubuntu/+bug/1306584)
 
         indicator-xkbmod -l
 
-- Filter needed modifiers (10110011 binary = 205 decimal)
+- Filter needed modifiers (10110011 binary = 205 decimal, Default: 255)
 
         indicator-xkbmod -f 205
 
@@ -54,6 +56,8 @@ https://bugs.launchpad.net/ubuntu/+bug/1306584)
 
 ## Gnome-Shell/Gnome3 Support
 
-Currently, it can be run in label mode (`-l`) using [gnome-shell-extension-appindicator](https://github.com/rgcjonas/gnome-shell-extension-appindicator) which integrates Ubuntu AppIndicators and KStatusNotifierItems into Gnome Shell.
+**Note:** *May be better if you look for native extention, so try first https://github.com/sneetsher/Keyboard-Modifiers-Status*
+
+Currently, it can be run only in label mode (`-l`) using [gnome-shell-extension-appindicator](https://github.com/rgcjonas/gnome-shell-extension-appindicator) which integrates Ubuntu AppIndicators and KStatusNotifierItems into Gnome Shell.
 
 The extension could be installed easily from https://extensions.gnome.org/extension/615/appindicator-support/ .
